@@ -1,8 +1,23 @@
+import requests
+import os
+from sys import argv
+
 '''
 Library of useful functions for working with images.
 '''
 def main():
     # TODO: Add code to test the functions in this module
+   
+    image_filename = argv[0]
+    image_path = os.path.join(os.environ["HOMEPATH"], "Desktop", image_filename)
+    print(image_path)
+    image_url = 'https://api.nasa.gov/planetary/apod?api_key=xmXuRKXZNZkoJSGzL1X3PbZjvdbBm0YzJ2rE60lh'
+    image_content = download_image(image_url)
+    save_image_file(image_content, image_path)
+    
+    
+    
+    
     return
 
 def download_image(image_url):
@@ -16,8 +31,25 @@ def download_image(image_url):
     Returns:
         bytes: Binary image data, if succcessful. None, if unsuccessful.
     """
+    
+    
+    resp_msg = requests.get(image_url)
+    # Check whether the download was successful
+    if resp_msg.status_code == requests.codes.ok:
+    # Extract binary file content from response message
+        image_content = resp_msg.content
+
+
+
+
+
+
+
+
+
+
     # TODO: Complete function body
-    return
+    return image_content
 
 def save_image_file(image_data, image_path):
     """Saves image data as a file on disk.
@@ -31,6 +63,12 @@ def save_image_file(image_data, image_path):
     Returns:
         bytes: True, if succcessful. False, if unsuccessful
     """
+    
+    with open(image_path, 'wb') as file:
+        file.write(image_data)
+
+
+
     # TODO: Complete function body
     return
 
