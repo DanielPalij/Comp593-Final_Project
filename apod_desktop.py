@@ -15,6 +15,7 @@ from datetime import date
 import os
 import image_lib
 import inspect
+import sqlite3
 
 # Global variables
 image_cache_dir = None  # Full path of image cache directory
@@ -79,7 +80,45 @@ def init_apod_cache(parent_dir):
         parent_dir (str): Full path of parent directory    
     """
     global image_cache_dir
+    image_cache_dir = (f'{parent_dir}/image_cache')
+    if not os.path.exists(image_cache_dir):
+    
+        os.mkdir(image_cache_dir)
+    
+    
+    
+    
     global image_cache_db
+    con = sqlite3.connect('image_cache/APOD_image.db')
+    cur = con.cursor()
+    tbl_query = """
+        CREATE TABLE IF NOT EXISTS people
+        (
+            id INTEGER PRIMARY KEY,
+            apod_title TEXT NOT NULL,
+            apod_explaination TEXT NOT NULL,
+            full_path TEXT NOT NULL,
+            hash TEXT NOT NULL,
+            created_at DATETIME NOT NULL,
+            updated_at DATETIME NOT NULL
+        
+        );
+    """
+
+    cur.execute(tbl_query)
+    con.commit()
+    con.close()
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     # TODO: Determine the path of the image cache directory
     # TODO: Create the image cache directory if it does not already exist
     # TODO: Determine the path of image cache DB
