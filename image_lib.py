@@ -9,11 +9,12 @@ def main():
     # TODO: Add code to test the functions in this module
    
     image_filename = argv[0]
-    image_path = os.path.join(os.environ["HOMEPATH"], "Desktop", image_filename)
+    date = argv[1]
+    image_path = os.path.join(os.environ["TEMP"], image_filename)
     print(image_path)
-    image_url = 'https://api.nasa.gov/planetary/apod?api_key=xmXuRKXZNZkoJSGzL1X3PbZjvdbBm0YzJ2rE60lh'
-    image_content = download_image(image_url)
-    save_image_file(image_content, image_path)
+    image_url = f'https://api.nasa.gov/planetary/apod?date={date}&api_key=xmXuRKXZNZkoJSGzL1X3PbZjvdbBm0YzJ2rE60lh'
+    image_data = download_image(image_url)
+    save_image_file(image_data, image_path)
     
     
     
@@ -39,16 +40,6 @@ def download_image(image_url):
     # Extract binary file content from response message
         image_content = resp_msg.content
 
-
-
-
-
-
-
-
-
-
-    # TODO: Complete function body
     return image_content
 
 def save_image_file(image_data, image_path):
