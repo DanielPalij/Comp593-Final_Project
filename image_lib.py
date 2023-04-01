@@ -1,23 +1,20 @@
 import requests
 import os
 from sys import argv
-
+import ctypes
 '''
 Library of useful functions for working with images.
 '''
 def main():
     # TODO: Add code to test the functions in this module
    
-    image_filename = argv[0]
-    date = argv[1]
+    
+    date = argv[0]
     image_path = os.path.join(os.environ["TEMP"], image_filename)
     print(image_path)
     image_url = f'https://api.nasa.gov/planetary/apod?date={date}&api_key=xmXuRKXZNZkoJSGzL1X3PbZjvdbBm0YzJ2rE60lh'
     image_data = download_image(image_url)
     save_image_file(image_data, image_path)
-    
-    
-    
     
     return
 
@@ -33,14 +30,17 @@ def download_image(image_url):
         bytes: Binary image data, if succcessful. None, if unsuccessful.
     """
     
-    
     resp_msg = requests.get(image_url)
     # Check whether the download was successful
+    
     if resp_msg.status_code == requests.codes.ok:
     # Extract binary file content from response message
         image_content = resp_msg.content
-
-    return image_content
+        print('Download Complete')
+        return image_content
+    else:
+        print('Download Incomplete')
+        return None
 
 def save_image_file(image_data, image_path):
     """Saves image data as a file on disk.
@@ -54,14 +54,14 @@ def save_image_file(image_data, image_path):
     Returns:
         bytes: True, if succcessful. False, if unsuccessful
     """
+    try:
+        with open(image_path, 'wb') as file:
+            file.write(image_data)
+        return True 
+    except:
+        return False
     
-    with open(image_path, 'wb') as file:
-        file.write(image_data)
-
-
-
-    # TODO: Complete function body
-    return
+    
 
 def set_desktop_background_image(image_path):
     """Sets the desktop background image to a specific image.
@@ -72,8 +72,13 @@ def set_desktop_background_image(image_path):
     Returns:
         bytes: True, if succcessful. False, if unsuccessful        
     """
-    # TODO: Complete function body
-    return
+    try:
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path , 0)
+        return True
+    except:
+        print('Error Setting Background')
+        return False
+
 
 def scale_image(image_size, max_size=(800, 600)):
     """Calculates the dimensions of an image scaled to a maximum width
