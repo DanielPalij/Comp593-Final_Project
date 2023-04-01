@@ -8,13 +8,14 @@ Library of useful functions for working with images.
 def main():
     # TODO: Add code to test the functions in this module
    
+    image_filename = argv[0]
     
-    date = argv[0]
     image_path = os.path.join(os.environ["TEMP"], image_filename)
-    print(image_path)
-    image_url = f'https://api.nasa.gov/planetary/apod?date={date}&api_key=xmXuRKXZNZkoJSGzL1X3PbZjvdbBm0YzJ2rE60lh'
+
+    image_url = 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg'
     image_data = download_image(image_url)
     save_image_file(image_data, image_path)
+    set_desktop_background_image(image_path)
     
     return
 
@@ -57,6 +58,7 @@ def save_image_file(image_data, image_path):
     try:
         with open(image_path, 'wb') as file:
             file.write(image_data)
+            print('saved')
         return True 
     except:
         return False
@@ -73,7 +75,7 @@ def set_desktop_background_image(image_path):
         bytes: True, if succcessful. False, if unsuccessful        
     """
     try:
-        ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path , 0)
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, image_path, 0)
         return True
     except:
         print('Error Setting Background')

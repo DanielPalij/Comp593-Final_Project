@@ -12,11 +12,13 @@ Parameters:
   apod_date = APOD date (format: YYYY-MM-DD)
 """
 from datetime import date
+from datetime import datetime
 import os
 import image_lib
 import inspect
 import sqlite3
-
+from sys import argv
+import apod_api
 # Global variables
 image_cache_dir = None  # Full path of image cache directory
 image_cache_db = None   # Full path of image cache database
@@ -54,8 +56,18 @@ def get_apod_date():
         date: APOD date
     """
     # TODO: Complete function body
-    apod_date = date.fromisoformat('2022-12-25')
-    return apod_date
+    apod_date = argv[1]
+    valid_date_obj = datetime.strptime('1995-6-16', '%Y-%m-%d') 
+    today = date.today() 
+    today_str = datetime.strftime(today, '%Y-%m-%d')
+    today_obj = datetime.strptime(today_str, '%Y-%m-%d')
+    apod_date_obj = datetime.strptime(apod_date, '%Y-%m-%d')
+    if apod_date_obj < valid_date_obj or apod_date_obj > today_obj:
+        print('error out of time frame')
+    else:
+        print(f'printing{apod_date}')
+        return apod_date
+    
 
 def get_script_dir():
     """Determines the path of the directory in which this script resides
