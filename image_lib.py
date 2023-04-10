@@ -1,11 +1,7 @@
 import requests
 import ctypes
  
-def main():
-    image_data = download_image('https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg')
-    result = save_image_file(image_data, r'C:\temp\kitty.jpg')
-    return
- 
+
 def download_image(image_url):
     """Downloads an image from a specified URL.
  
@@ -87,5 +83,3 @@ def scale_image(image_size, max_size=(800, 600)):
     new_size = (int(image_size[0] * resize_ratio), int(image_size[1] * resize_ratio))
     return new_size
  
-if __name__ == '__main__':
-    main()
