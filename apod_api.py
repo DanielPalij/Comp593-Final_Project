@@ -25,7 +25,7 @@ def get_apod_info(apod_date):
             'date' : apod_date,
             'thumbs' : 'True'
     }
-    
+      
     
     resp_msg = requests.get(f'{apod_url}',params=apod_params)
     print(resp_msg.json())
@@ -46,8 +46,15 @@ def get_apod_image_url(apod_info_dict):
     Returns:
         str: APOD image URL
     """
+    media = apod_info_dict['media_type']
+    if media == 'image':
+        return apod_info_dict['hdurl']
     
-    return
+    elif media == 'video':
+        return apod_info_dict['thumbnail_url']
+    
+    else:
+        return ValueError(f"Unsupported media type '{media}'")
 
 if __name__ == '__main__':
     main()
