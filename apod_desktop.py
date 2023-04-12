@@ -19,7 +19,6 @@ import inspect
 import sqlite3
 from sys import argv
 import apod_api
-import sys
 import hashlib
 
 # Global variables
@@ -71,10 +70,6 @@ def get_apod_date():
         print(f'Printing{apod_date}')
         return apod_date
     
-
-
-
-
 
 def get_script_dir():
     """Determines the path of the directory in which this script resides
