@@ -20,6 +20,7 @@ import sqlite3
 from sys import argv
 import apod_api
 import hashlib
+import re
 
 # Global variables
 image_cache_dir = None  # Full path of image cache directory
@@ -67,7 +68,7 @@ def get_apod_date():
     if apod_date_obj < valid_date_obj or apod_date_obj > today_obj:
         print('Error out of time frame')
     else:
-        print(f'Printing{apod_date}')
+        print(f'Printing {apod_date}')
         return apod_date
     
 
@@ -174,7 +175,6 @@ def add_apod_to_cache(apod_date):
     # Add the APOD information to the DB
     
     
-    
     return 0
 
 def add_apod_to_db(title, explanation, file_path, sha256):
@@ -232,9 +232,23 @@ def get_apod_id_from_db(image_sha256):
     Returns:
         int: Record ID of the APOD in the image cache DB, if it exists. Zero, if it does not.
     """
-    # TODO: Complete function body
-     
-    return 0
+    # connects db and initializes cursor
+    con = sqlite3.connect(image_cache_db)
+    cur = con.cursor()
+    
+    # Query db for hash
+    apod_id_query = (f"SELECT id FROM apod WHERE hash='{image_sha256}'")
+    cur.execute(apod_id_query, image_sha256)
+    query_result = cur.fetchone()
+    con.close()
+
+
+    # no image results in no return, otherwise return id of image
+    if query_result == None:
+        return 0
+    else:
+        return query_result[0]
+    
 
 def determine_apod_file_path(image_title, image_url):
     """Determines the path at which a newly downloaded APOD image must be 
@@ -262,7 +276,19 @@ def determine_apod_file_path(image_title, image_url):
         str: Full path at which the APOD image file must be saved in the image cache directory
     """
     # TODO: Complete function body
-    return
+    
+    #
+    apod_title = re.sub(r'[^\w\d_]', '', image_title)
+
+    # splits and joins image title
+    split_title = apod_title.split(" ")
+    joined_title = "_".join(split_title)
+
+    
+    apod_fp = os.path.join(image_cache_dir, apod_title, joined_title)
+    
+    
+    return apod_fp
 
 def get_apod_info(image_id):
     """Gets the title, explanation, and full path of the APOD having a specified
