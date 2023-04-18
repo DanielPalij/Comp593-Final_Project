@@ -46,6 +46,7 @@ def get_apod_image_url(apod_info_dict):
     Returns:
         str: APOD image URL
     """
+    print(apod_info_dict)
     media = apod_info_dict['media_type']
     if media == 'image':
         return apod_info_dict['hdurl']

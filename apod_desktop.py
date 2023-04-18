@@ -117,7 +117,7 @@ def init_apod_cache(parent_dir):
         (
             id INTEGER PRIMARY KEY,
             apod_title TEXT NOT NULL,
-            apod_explaination TEXT NOT NULL,
+            apod_explanation TEXT NOT NULL,
             full_path TEXT NOT NULL,
             hash TEXT
         );
@@ -147,12 +147,13 @@ def add_apod_to_cache(apod_date):
     """
     print("APOD date:", apod_date)
     
-    
     # Download the APOD information from the NASA API
     apod_info = apod_api.get_apod_info(apod_date)
     title = apod_info['title']
     print(apod_info['title'])
-    apod_url = apod_api.get_apod_image_url(apod_date)
+    explanation = apod_info['explanation']
+
+    apod_url = apod_api.get_apod_image_url(apod_info)
     print(f'URL: {apod_url}')
     img_path = determine_apod_file_path(title, apod_url)
    
@@ -162,20 +163,23 @@ def add_apod_to_cache(apod_date):
     print(f'SHA-256: {sha}')  
     
     # Check whether the APOD already exists in the image cache
-    if sha != 0:
+    id_db = get_apod_id_from_db(sha)
+    if id_db != 0:
         print('APOD image already exits in cache!')
         
         # Save the APOD file to the image cache directory
         image_lib.save_image_file(file_content, img_path)
-        return sha 
+        return  id_db
     
-    elif sha == 0:
+    elif id_db == 0:
+        image_lib.save_image_file(file_content, img_path)
         print('APOD image is not already in cache!')
 
-    # Add the APOD information to the DB
-    
-    
-    return 0
+
+        apod_db = add_apod_to_db(title,explanation, img_path, sha)
+        return apod_db
+    else:
+        return 0
 
 def add_apod_to_db(title, explanation, file_path, sha256):
     """Adds specified APOD information to the image cache DB.
@@ -193,13 +197,13 @@ def add_apod_to_db(title, explanation, file_path, sha256):
     con = sqlite3.connect(image_cache_db)
     cur = con.cursor()
     id_query = """
-        INSERTED APOD RECORD apod_values
+        INSERT INTO apod_images
         (
             apod_title,
-            apod_explaination,
+            apod_explanation,
             full_path,
             hash
-        );
+        )
         VALUES (?, ?, ?, ?);
     """
     apod_vals = (
@@ -207,8 +211,8 @@ def add_apod_to_db(title, explanation, file_path, sha256):
         explanation,
         file_path,
         sha256
-    )
-    cur.execute(id_query,apod_vals)
+        )
+    cur.execute(id_query, apod_vals)
     con.commit()
     con.close()
     
@@ -237,8 +241,8 @@ def get_apod_id_from_db(image_sha256):
     cur = con.cursor()
     
     # Query db for hash
-    apod_id_query = (f"SELECT id FROM apod WHERE hash='{image_sha256}'")
-    cur.execute(apod_id_query, image_sha256)
+    apod_id_query = (f"SELECT id FROM apod_images WHERE hash='{image_sha256}'")
+    cur.execute(apod_id_query)
     query_result = cur.fetchone()
     con.close()
 
@@ -276,16 +280,17 @@ def determine_apod_file_path(image_title, image_url):
         str: Full path at which the APOD image file must be saved in the image cache directory
     """
     # TODO: Complete function body
+    image = image_url.split(".")
     
     #
-    apod_title = re.sub(r'[^\w\d_]', '', image_title)
+    apod_title = re.sub(r'[^\w\d_]', ' ', image_title)
 
     # splits and joins image title
     split_title = apod_title.split(" ")
     joined_title = "_".join(split_title)
 
-    
-    apod_fp = os.path.join(image_cache_dir, apod_title, joined_title)
+    file = f'{joined_title}.{image[-1]}'
+    apod_fp = os.path.join(image_cache_dir, file)
     
     
     return apod_fp
@@ -301,12 +306,21 @@ def get_apod_info(image_id):
         dict: Dictionary of APOD information
     """
     # TODO: Query DB for image info
-    # TODO: Put information into a dictionary
+    con = sqlite3.connect(image_cache_db)
+    cur = con.cursor()
+    apod_info_query = f"""SELECT apod_title, apod_explanation, full_path FROM apod_images WHERE id='{image_id}'"""
+    cur.execute(apod_info_query)
+    query_result = cur.fetchone()
+    con.close()
+
+
+    # Put information into a dictonary
     apod_info = {
-        #'title': , 
-        #'explanation': ,
-        'file_path': 'TBD',
+        'apod_title': query_result[0], 
+        'apod_explanation': query_result[1],
+        'file_path': query_result[2],
     }
+    
     return apod_info
 
 def get_all_apod_titles():
