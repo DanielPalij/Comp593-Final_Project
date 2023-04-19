@@ -58,7 +58,7 @@ def get_apod_date():
     Returns:
         date: APOD date
     """
-  
+    
     apod_date = argv[1]
     valid_date_obj = datetime.strptime('1995-6-16', '%Y-%m-%d') 
     today = date.today() 
@@ -216,6 +216,7 @@ def add_apod_to_db(title, explanation, file_path, sha256):
     con.commit()
     con.close()
     
+    # Grabs last row
     created = cur.lastrowid
     if created > 0:
         print('Success')
@@ -236,7 +237,7 @@ def get_apod_id_from_db(image_sha256):
     Returns:
         int: Record ID of the APOD in the image cache DB, if it exists. Zero, if it does not.
     """
-    # connects db and initializes cursor
+    # Connects db and initializes cursor
     con = sqlite3.connect(image_cache_db)
     cur = con.cursor()
     
@@ -279,11 +280,11 @@ def determine_apod_file_path(image_title, image_url):
     Returns:
         str: Full path at which the APOD image file must be saved in the image cache directory
     """
-    # TODO: Complete function body
+    
     image = image_url.split(".")
     
-    #
-    apod_title = re.sub(r'[^\w\d_]', ' ', image_title)
+    # Removes anything that isnt a word digit or underscore
+    apod_title = re.sub(r'[^\w\d_]', '', image_title)
 
     # splits and joins image title
     split_title = apod_title.split(" ")
@@ -291,7 +292,6 @@ def determine_apod_file_path(image_title, image_url):
 
     file = f'{joined_title}.{image[-1]}'
     apod_fp = os.path.join(image_cache_dir, file)
-    
     
     return apod_fp
 
@@ -305,7 +305,7 @@ def get_apod_info(image_id):
     Returns:
         dict: Dictionary of APOD information
     """
-    # TODO: Query DB for image info
+    #  Query DB for image info
     con = sqlite3.connect(image_cache_db)
     cur = con.cursor()
     apod_info_query = f"""SELECT apod_title, apod_explanation, full_path FROM apod_images WHERE id='{image_id}'"""
